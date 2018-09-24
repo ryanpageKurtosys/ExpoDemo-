@@ -98,7 +98,9 @@ export default class Animations_ extends Component {
     //console.log("Pred X: " + (pred_Y  + StatusBarHeight + 110) + " Snake X: " + snakeY );
 
     const bugs = this.state.bugs;
+   // const bugsSpecial_array = this.bugsSpecial_array;
     let points = this.state.points;
+
 
     bugs.map((value,index) =>{
       if(snakeX >= (value.x - 30) && snakeX <= (value.x + 30)){
@@ -109,8 +111,20 @@ export default class Animations_ extends Component {
       } 
     })
 
+    console.log(bugsSpecial_array);
+    // bugsSpecial_array.map((value,index) =>{
+    //     if(snakeX >= (value.x - 30) && snakeX <= (value.x + 30)){
+    //       if(snakeY >= (value.y - 30 + StatusBarHeight) && snakeY <= (value.y + 30 + StatusBarHeight)){
+    //         bugsSpecial_array.splice(index,1);
+    //         points += 100;
+    //       }
+    //     } 
+    //   })
+  
+
     this.setState({
       bugs:bugs,
+      bugsSpecial_array,
       points:points,
       borderRadius,
       SnakeColor,
@@ -149,7 +163,6 @@ export default class Animations_ extends Component {
 
   bugsSpecial = (bug_color) => {
     const bugsSpecial_array = [];
-
     bugsSpecial_array.push({
           x:Math.floor(Math.abs(Math.random() * screenWidth - 35)),
           y:Math.floor(Math.abs(Math.random() * screenHeight - 35)),
@@ -162,12 +175,50 @@ export default class Animations_ extends Component {
     })
   }
 
+    //------------------------
+    bugsRender = () => {
+        return(this.state.bugs.map((value,index) => {
+          return(
+            <View style={StyleSheet.absoluteFill} key={index}> 
+             <TouchableWithoutFeedback>
+               <Animated.View style={[styles.bug, {left:value.x, top:value.y }]}>
+                <Ionicons name="ios-bug" size={30} color= {value.backgroundColor}/>
+               </Animated.View>
+             </TouchableWithoutFeedback>
+           </View>
+           )
+        }))
+    }
+  
+    bugsSpecialRender = () => {
+
+    const indexChosen = 0;
+
+      return(this.state.bugsSpecial_array.map((value,index) => {
+        if(index == indexChosen){
+            return(
+                <View style={StyleSheet.absoluteFill} key={index}> 
+                 <TouchableWithoutFeedback>
+                   <Animated.View style={[styles.bug, {left:value.x, top:value.y }]}>
+                    <Ionicons name="ios-bug" size={50} color= {'white'}/>
+                   </Animated.View>
+                 </TouchableWithoutFeedback>
+               </View>
+               )
+            }
+      }))
+  }
+
   //Math.floor(Math.random() * 6) + 1  
   componentDidMount() {
     this.bugsGenerate("red");
     this.interval = setInterval(() => {
       this.startPredator()
     }, 1000);    
+    this.intervalSpecial = setInterval(() => {
+        this.bugsSpecial();
+        setTimeout(() => this.setState({bugsSpecial_array:[]}), 1500);
+      }, Math.floor(Math.random() * 12000) + 4000  );    
   }
   
 
@@ -268,22 +319,6 @@ export default class Animations_ extends Component {
 
       } 
 
-  //------------------------
-
-  bugsRender = () => {
-      return(this.state.bugs.map((value,index) => {
-        return(
-          <View style={StyleSheet.absoluteFill} key={index}> 
-           <TouchableWithoutFeedback>
-             <Animated.View style={[styles.bug, {left:value.x, top:value.y }]}>
-              <Ionicons name="ios-bug" size={30} color= {value.backgroundColor}/>
-             </Animated.View>
-           </TouchableWithoutFeedback>
-         </View>
-         )
-      }))
-  }
-
   predator_Snake_Collision(){
 
     
@@ -346,7 +381,7 @@ export default class Animations_ extends Component {
 
          this.state.heads.slice(1).map(({ animation }, index) => {
           return Animated.sequence([
-            Animated.delay(index * 10),
+            Animated.delay(index * 20),
             Animated.spring(animation, {
               toValue: { x: boundries.dx, y: boundries.dy },
             }),
@@ -392,7 +427,6 @@ export default class Animations_ extends Component {
 
   render() {
 
-
       const animatedStyles = {
       transform: this.state.animationSafeArea.getTranslateTransform(),
     };
@@ -428,6 +462,7 @@ export default class Animations_ extends Component {
             </TouchableWithoutFeedback>
        
         {this.bugsRender()} 
+        {this.bugsSpecialRender()} 
         {this.predator_Snake_Collision()} 
         {this.state.heads.slice(0).reverse().map((item, index, items) => {
           const pan = index === items.length - 1 ? this._panResponder.panHandlers : {};
@@ -491,6 +526,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 30,
     height: 30,
+    borderRadius: 0,
+  }, 
+  bugSpecial:{
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    width: 50,
+    height: 50,
     borderRadius: 0,
   }
 });

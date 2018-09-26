@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import {
+  AppRegistry,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   Image,
@@ -9,10 +11,13 @@ import {
   Dimensions,
   StatusBar,
   TouchableWithoutFeedback,
-  AsyncStorage
+  KeyboardAvoidingView
 } from "react-native";
 
 import { Ionicons } from '@expo/vector-icons';
+import Background  from '../assets/main4.png';
+
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 const createAnimationStyle = animation => {
   const translateY = animation.interpolate({
@@ -35,62 +40,36 @@ const screenWidth = (Dimensions.get('window').width);
 const screenHeight = (Dimensions.get('window').height);
 const StatusBarHeight = StatusBar.currentHeight;
 
-export default class MainMenu extends Component {
-  state = {
-    playbutton: new Animated.Value(0),
-    highscore: new Animated.Value(0),
-    bugs:[],
-    HighScore:'',
-    TotalScore:'',
-    heads: [
-        {
-          animation: new Animated.ValueXY(),
-          text: "",
-        },
-        {
-          animation: new Animated.ValueXY(),
-          text: "",
-        },
-        {
-          animation: new Animated.ValueXY(),
-          text: "",
-        },
-        {
-          animation: new Animated.ValueXY(),
-          text: "",
-        },
-      ]
-  };
-
+export default class HighScores extends Component {
+   
+constructor(props){
+    super(props);
+    this.state = {
+        playbutton: new Animated.Value(0),
+        highscore: new Animated.Value(0),
+        bugs:[],
+        heads: [
+            {
+            animation: new Animated.ValueXY(),
+            text: "",
+            },
+            {
+            animation: new Animated.ValueXY(),
+            text: "",
+            },
+            {
+            animation: new Animated.ValueXY(),
+            text: "",
+            },
+            {
+            animation: new Animated.ValueXY(),
+            text: "",
+            },
+        ]
+    };
+}
 
   componentDidMount() {
-
-    AsyncStorage.multiGet(['@HighScores:key','@TotalScore:key']).then((value) => {
-
-        let HighScore = "";
-        let TotalScore = "";
-  
-        if(value[0][1] === null){
-          HighScore = "[]"
-        }
-        else{
-          HighScore = value[0][1];
-        }
-  
-        if(value[1][1] == null){
-          TotalScore = "[]"
-        }
-        else{
-          TotalScore = value[1][1];
-        }
-  
-        this.setState({
-          HighScore,
-          TotalScore
-        })
-  
-      })
-    
       Animated.timing(this.state.playbutton, {
         toValue: 1,
         duration: 200,
@@ -104,7 +83,6 @@ export default class MainMenu extends Component {
 
 
   bugsGenerate = (bug_color) => {
-    console.log(this.props);
     const bugs_array = [];
 
     for (var i = 0; i < 4; i++) {
@@ -174,17 +152,16 @@ export default class MainMenu extends Component {
         <View
           style={[StyleSheet.absoluteFill, { width: null, height: null, zIndex:-1 }]}>
           <View style={[styles.container, {zIndex:3} ]} />
-            <View style={[styles.form, {flex:2, zIndex:2}]}>
-              <Text style={[styles.title, {fontWeight:'bold'}]}>Snake</Text>
-              <TouchableOpacity onPress={() => this.props.navigation.navigate('Animations_')}>
-                <Animated.View style={[styles.button, buttonStylePlay]}>
-                  <Text style={styles.buttonText}>New Game</Text>
+            <View style={[styles.form, {flex:1, zIndex:2}]}>
+              <Text style={[styles.title, {fontWeight:'bold'}]}>High Scores</Text>
+              <TouchableOpacity>
+                <Animated.View style={[styles.highscores, buttonStylePlay]}>
+                  
                 </Animated.View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.props.navigation.navigate('HighScores')}>
-                <Animated.View 
-                style={[styles.button, buttonStyleHigh]}>
-                  <Text style={styles.buttonText}>High Score</Text>
+              <TouchableOpacity  onPress={() => this.props.navigation.navigate('MainMenu')}>
+                <Animated.View style={[styles.button, buttonStyleHigh]}>
+                  <Text style={styles.buttonText}>Back</Text>
                 </Animated.View>
               </TouchableOpacity>
             </View>
@@ -224,8 +201,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,.25)",
     paddingVertical: 10,
   },
-  button: {
+  highscores:{
     width:300,
+  },
+  button: {
+    width:100,
     marginTop: 30,
     backgroundColor: "tomato",
     paddingVertical: 10,

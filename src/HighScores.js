@@ -11,7 +11,8 @@ import {
   Dimensions,
   StatusBar,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  AsyncStorage
 } from "react-native";
 
 import { Ionicons } from '@expo/vector-icons';
@@ -47,6 +48,7 @@ constructor(props){
     this.state = {
         playbutton: new Animated.Value(0),
         highscore: new Animated.Value(0),
+        HighScore:{"HighScore":[]},
         bugs:[],
         heads: [
             {
@@ -69,7 +71,50 @@ constructor(props){
     };
 }
 
+async loadData() {
+
+    AsyncStorage.multiGet(['@HighScores:key','@TotalScore:key']).then((value) => {
+
+        let HighScore = value[0][1];
+        let TotalScore = value[1][1];
+
+        if(HighScore === null){
+            HighScore = '{"HighScore":[0]}';
+        }
+    
+        if(TotalScore == null){
+            TotalScore = '{"TotalScore":0}';
+        }
+
+        this.setState({
+            HighScore:JSON.parse(HighScore),
+            TotalScore:JSON.parse(TotalScore)
+        })
+    }).then(() => {
+       this.highScoreRender();
+    })
+};
+
+  highScoreRender = () => {
+
+       const data = this.state.HighScore["HighScore"];
+
+       const HighScore = data.sort((a, b) => b - a);
+
+       return(HighScore.map((value, index) => {
+
+        return (
+            <View style={{ flex:1 }} key={index}>
+                <Text style={styles.text}>{index + 1}:   {value}</Text>
+            </View>
+        )
+    }))
+  }
+
   componentDidMount() {
+    
+        this.loadData();
+
       Animated.timing(this.state.playbutton, {
         toValue: 1,
         duration: 200,
@@ -151,12 +196,16 @@ constructor(props){
       <View style={[styles.container, {backgroundColor:'#212121'}]}>
         <View
           style={[StyleSheet.absoluteFill, { width: null, height: null, zIndex:-1 }]}>
+         
           <View style={[styles.container, {zIndex:3} ]} />
             <View style={[styles.form, {flex:1, zIndex:2}]}>
               <Text style={[styles.title, {fontWeight:'bold'}]}>High Scores</Text>
+                <View style={{flex:1}}>
+                    { this.highScoreRender() } 
+                </View>
               <TouchableOpacity>
                 <Animated.View style={[styles.highscores, buttonStylePlay]}>
-                  
+             
                 </Animated.View>
               </TouchableOpacity>
               <TouchableOpacity  onPress={() => this.props.navigation.navigate('MainMenu')}>
@@ -175,6 +224,7 @@ constructor(props){
             >
             <Image style={{width: 60,height: 60, borderRadius:30}} source={require('../assets/pacman.png')}/>
             </Animated.View>
+            
              )
         })}
         </View>
@@ -193,6 +243,12 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     textAlign: "center",
     marginBottom: 10,
+  },
+  text:{
+    color:'white',
+    fontSize:20,
+    fontWeight:'bold',
+    alignItems:'flex-start'
   },
   form: {
     flex: 1,

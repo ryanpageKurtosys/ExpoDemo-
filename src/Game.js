@@ -411,6 +411,26 @@ export default class Animations_ extends Component {
             try {
                 AsyncStorage.setItem('@TotalScore:key', TotalScore);
             } catch (error) {}
+
+            const HighScore = this.state.HighScore;
+
+            if(HighScore["HighScore"].length <= 5){
+                HighScore["HighScore"].push(points);  
+                try {
+                    AsyncStorage.setItem('@HighScores:key',JSON.stringify(HighScore));
+                } catch (error) {}
+            }
+            else{
+                const minScore = Math.min.apply( Math, HighScore["HighScore"] );
+                const index = HighScore["HighScore"].indexOf(minScore);
+
+                if(points > minScore){
+                    HighScore["HighScore"][index] = points;
+                    try {
+                        AsyncStorage.setItem('@HighScores:key',JSON.stringify(HighScore));
+                    } catch (error) {}
+                }
+            }
     }
 
     async loadData() {

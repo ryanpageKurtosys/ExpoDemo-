@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "snake5",
+    "name": "snake6",
     "description": "This project is really great.",
-    "slug": "snake5",
+    "slug": "snake6",
     "privacy": "public",
     "sdkVersion": "29.0.0",
     "platforms": ["ios", "android"],

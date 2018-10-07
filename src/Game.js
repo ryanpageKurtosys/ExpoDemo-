@@ -21,7 +21,6 @@ const screenHeight = (Dimensions.get('window').height);
 const StatusBarHeight = StatusBar.currentHeight;
 const safeBoxWidth = 80;
 const safeBoxHeight = 80;
-
 let lives = 3;
 let special_Collison = false;
 let special_status = '';
@@ -46,7 +45,7 @@ export default class Animations_ extends Component {
       PredflipY:'0rad',
       snakeX:(Dimensions.get('window').width)/2,
       snakeY:(Dimensions.get('window').height)/2,
-      safeBox_X:0,
+      safeBox_X:35,
       safeBox_Y:0,
       SnakeColor:'red',
       borderRadius:20,
@@ -97,8 +96,12 @@ export default class Animations_ extends Component {
    let borderRadius = this.state.borderRadius;
    let SnakeColor = this.state.SnakeColor;
 
+
+   console.log("Collission: " + "Snake X " + snakeX + " safeBox_X "  + safeBox_X);
+   console.log("Collission: " + "Snake Y " + snakeY + " safeBox_Y "  + (safeBox_Y +35));
+
     if(snakeX >= safeBox_X && snakeX <= safeBox_X + safeBoxWidth){
-        if(snakeY >= safeBox_Y && snakeY <= safeBox_Y + safeBoxHeight){
+        if(snakeY >= (safeBox_Y + 35 - 30) && snakeY <= (safeBox_Y + safeBoxHeight + 35 )){
         borderRadius = 0;
         safeStatus = true;
         }else{
@@ -118,8 +121,8 @@ export default class Animations_ extends Component {
     const bugsSpecial_array = this.state.bugsSpecial_array;
 
     bugs.map((value,index) =>{
-      if(snakeX >= (value.x - 30) && snakeX <= (value.x + 30)){
-        if(snakeY >= (value.y - 30 + StatusBarHeight) && snakeY <= (value.y + 30 + StatusBarHeight)){
+      if(snakeX >= (value.x - 35 + 10) && snakeX <= (value.x + 45)){
+        if(snakeY >= (value.y + 35 - 40) && snakeY <= (value.y + 35 + 45)){
           bugs.splice(index,1);
           points += 10;
         }
@@ -128,11 +131,12 @@ export default class Animations_ extends Component {
 
 
      bugsSpecial_array.map((value,index) =>{
-        if(snakeX >= (value.x - 50) && snakeX <= (value.x + 50)){
-          if(snakeY >= (value.y - 50 + StatusBarHeight) && snakeY <= (value.y + 50 + StatusBarHeight)){
+        if(snakeX >= (value.x - 35) && snakeX <= (value.x + 35+50)){
+          if(snakeY >= (value.y + 35 - 45) && snakeY <= (value.y + 60 + 35)){
             bugsSpecial_array.splice(index,1);
             points += 100;
             this.specialFunction(value.type);
+            this.bugsSpecial();
           }
         } 
       })
@@ -256,15 +260,10 @@ export default class Animations_ extends Component {
   //Math.floor(Math.random() * 6) + 1  
   componentDidMount() {
     this.bugsGenerate("red");
+    this.bugsSpecial();
     this.interval = setInterval(() => {
       this.startPredator()
-    }, 1000);    
-    this.intervalSpecial = setInterval(() => {
-        this.bugsSpecial();
-        setTimeout(() => {
-            this.setState({bugsSpecial_array:[]})
-        },  Math.floor(Math.random() * 2300) + 1300 );
-      }, Math.floor(Math.random() * 12000) + 7500  );    
+    }, 1000)   
   }
   
   //predator ------------------
@@ -277,10 +276,8 @@ export default class Animations_ extends Component {
  
     if(!safeStatus){
 
-        pred_X = this.state.snakeX - 37.5;
-        pred_Y = this.state.snakeY - StatusBarHeight - 110;
-
-
+        pred_X = this.state.snakeX - 35;
+        pred_Y = this.state.snakeY - 50;
 
         Animated.parallel([
             Animated.timing(this.state.animatedPredator, {
@@ -308,7 +305,7 @@ export default class Animations_ extends Component {
 
         }else{
 
-            if((this.state.snakeX - 37.5) > screenWidth/2){
+            if((this.state.snakeX - 35) > screenWidth/2){
             pred_X = 0;
             }else{
             pred_X = screenWidth - 60;
@@ -393,7 +390,7 @@ export default class Animations_ extends Component {
             special_Collison = true;
         }else{
             if(!game_over){
-                lives =  lives - 1;
+                lives =  lives;
                 if(lives === 0){
                    game_over = true;
                    this.gameover();
@@ -480,7 +477,7 @@ export default class Animations_ extends Component {
 
   startAnimation = () => {
 
-    const _x = Math.floor(Math.abs(Math.random() * screenWidth - safeBoxWidth));
+    const _x = Math.floor(Math.abs(Math.random() * screenWidth - safeBoxWidth) + 35);
     const _y = Math.floor(Math.abs(Math.random() * screenHeight - safeBoxHeight));
 
     Animated.sequence([
@@ -537,7 +534,7 @@ export default class Animations_ extends Component {
   boundries(dx, dy, x0, y0){
     
     if(x0 + dx > screenWidth- 35){
-      dx =  screenWidth- 35 - x0;
+      dx =  screenWidth - 35 - x0;
     }
     if(x0 + dx <= 35 ){
       dx = 35 - x0;
@@ -602,22 +599,36 @@ export default class Animations_ extends Component {
 
 
     return (
-      <View style={styles.container}>
+      <View style={[styles.container]}>
         <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
             <TouchableWithoutFeedback >
               <Animated.View style={[styles.box, animatedStyles, {backgroundColor:this.state.SnakeColor, width: safeBoxWidth, height:safeBoxHeight }]}>
               </Animated.View>
             </TouchableWithoutFeedback>
+
+        </View>  
+        <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
+          {this.bugsRender()} 
+        </View>
+        <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
+          {this.bugsSpecialRender()} 
+        </View>
+        <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
+          {this.predator_Snake_Collision()} 
+        </View>
+
+        <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
+            <View style={styles.absoluteFill}>
             <TouchableWithoutFeedback>
               <Animated.View style={[styles.pred, animatedPredatorStyle]}>
                 <Image style={{width: 60,height: 60, borderRadius:30}} source={this.image_render_()}/>
               </Animated.View>
             </TouchableWithoutFeedback>
-       
-        {this.bugsRender()} 
-        {this.bugsSpecialRender()} 
-        {this.predator_Snake_Collision()} 
+            </View>
+        </View>    
+      
         {this.gameover()}
+        <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
         {this.state.heads.slice(0).reverse().map((item, index, items) => {
           const pan = index === items.length - 1 ? this._panResponder.panHandlers : {};
           if(!game_over){
@@ -626,14 +637,15 @@ export default class Animations_ extends Component {
                   {...pan}
                   key={index}
                   source={item.image}
-                  style={[styles.head, {zIndex: 1, borderRadius: this.state.borderRadius, backgroundColor:this.state.SnakeColor, transform: item.animation.getTranslateTransform() }]}
+                  style={[styles.head, {zIndex: 6, borderRadius: this.state.borderRadius, backgroundColor:this.state.SnakeColor, transform: item.animation.getTranslateTransform() }]}
                 >
                   {this.renderSecial()}
                 </Animated.View>
               );
           }
         })}
-          </View>
+        </View>
+
         <View style={{position: "absolute", bottom: 10,flexDirection:'row', zIndex: 0}}>
           <View style={{flex:1}}>
             <Text style={{color:'white',fontSize:30, justifyContent:'center'}}>Points {points}</Text>

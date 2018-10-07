@@ -104,7 +104,6 @@ export default class MainMenu extends Component {
 
 
   bugsGenerate = (bug_color) => {
-    console.log(this.props);
     const bugs_array = [];
 
     for (var i = 0; i < 4; i++) {

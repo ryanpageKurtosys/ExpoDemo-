@@ -97,8 +97,8 @@ export default class Animations_ extends Component {
    let SnakeColor = this.state.SnakeColor;
 
 
-   console.log("Collission: " + "Snake X " + snakeX + " safeBox_X "  + safeBox_X);
-   console.log("Collission: " + "Snake Y " + snakeY + " safeBox_Y "  + (safeBox_Y +35));
+  // console.log("Collission: " + "Snake X " + snakeX + " safeBox_X "  + safeBox_X);
+  // console.log("Collission: " + "Snake Y " + snakeY + " safeBox_Y "  + (safeBox_Y +35));
 
     if(snakeX >= safeBox_X && snakeX <= safeBox_X + safeBoxWidth){
         if(snakeY >= (safeBox_Y + 35 - 30) && snakeY <= (safeBox_Y + safeBoxHeight + 35 )){
@@ -276,14 +276,14 @@ export default class Animations_ extends Component {
  
     if(!safeStatus){
 
-        pred_X = this.state.snakeX - 35;
+        pred_X = this.state.snakeX - 25;
         pred_Y = this.state.snakeY - 50;
 
         Animated.parallel([
             Animated.timing(this.state.animatedPredator, {
                 toValue:{
-                x:pred_X,
-                y:pred_Y,
+                  x:screenWidth/2 - 60,
+                  y:(screenHeight - StatusBarHeight - 140)/2
                 }, 
                 duration:(1200 + predSpeed - SpeedAdd)
             }),
@@ -298,7 +298,7 @@ export default class Animations_ extends Component {
             Animated.timing(this.state.animatedPredator, {
                 toValue:{
                 x:screenWidth/2 - 60,
-                y:screenHeight - StatusBarHeight - 140
+                y:(screenHeight - StatusBarHeight - 140)/2
                 },
                 duration:800 
             }).start();
@@ -311,14 +311,14 @@ export default class Animations_ extends Component {
             pred_X = screenWidth - 60;
             }
             if(this.state.snakeY - StatusBarHeight > screenHeight/2){
-            pred_Y = 0 - StatusBarHeight - 80;
+              pred_Y = 0;
             }else{
-            pred_Y = screenHeight - StatusBarHeight - 140;
+              pred_Y = screenHeight -60 -35;
             }
             Animated.timing(this.state.animatedPredator, {
                 toValue:{
-                x:pred_X,
-                y:pred_Y
+                  x:screenWidth/2 - 60,
+                  y:(screenHeight - StatusBarHeight - 140)/2
                 },
                 duration:800 
             }).start();
@@ -383,14 +383,18 @@ export default class Animations_ extends Component {
      const snakeX = this.state.snakeX;
      const snakeY = this.state.snakeY;
 
+    // console.log("Collission: " + "Snake X " + snakeX + " safeBox_X "  + (pred_X +25));
+    // console.log("Collission: " + "Snake Y " + snakeY + " safeBox_Y "  + (pred_Y + 50));
+  
 
-     if(snakeX >= (pred_X + 37.5 - 30)  && snakeX <= (pred_X + 37.5 + 30)){
-       if(snakeY >= (pred_Y  + StatusBarHeight + 110 - 30) && snakeY <= (pred_Y  + StatusBarHeight + 110 + 30)){
+     if(snakeX >= ( pred_X + 25 - 57)  && snakeX <= ( pred_X +25 + 57 )){
+       if(snakeY >= ( pred_Y + 50 -57) && snakeY <= ( pred_Y + 50 + 57)){
         if(special_status === "fire"){
             special_Collison = true;
         }else{
             if(!game_over){
                 lives =  lives;
+                console.log("Dead");
                 if(lives === 0){
                    game_over = true;
                    this.gameover();

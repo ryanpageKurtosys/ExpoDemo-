@@ -1,10 +1,8 @@
 import React, { Component } from "react";
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
-  Image,
   Animated,
   PanResponder,
   StatusBar,
@@ -139,7 +137,9 @@ export default class Animations_ extends Component {
         this.setState({
           snakeX:moveX,
           snakeY:moveY
-        })
+        });
+
+        this.collisionDetection();
       
          this.state.heads.slice(1).map(({ animation }, index) => {
           return Animated.sequence([
@@ -175,13 +175,10 @@ export default class Animations_ extends Component {
   }
 
 
+
   render() {
 
-    const animatedPredatorStyle = {
-      transform: [...this.state.animatedPredator.getTranslateTransform()]
-    };
-
-
+  
     return (
       <View style={[styles.container]}>
         <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
@@ -206,10 +203,6 @@ export default class Animations_ extends Component {
         <View style={{position: "absolute", bottom: 10,flexDirection:'row', zIndex: 0}}>
           <View style={{flex:1}}>
             <Text style={{color:'white',fontSize:30, justifyContent:'center'}}>Points {points}</Text>
-          </View>
-          <View style={{flex:1, justifyContent:'center', alignItems:'center',flexDirection:'row'}}>
-            <MaterialCommunityIcons name="heart" size={30} color= "red"/>
-            <Text style={{color:'white',fontSize:30, justifyContent:'center'}}> {lives}</Text>
           </View>
         </View>
       

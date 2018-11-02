@@ -27,13 +27,11 @@ export default class App extends React.Component {
   render() {
 
     return (
-      <AppNavigator initialRouteName={MainMenu} ryan={"dfsfdgdg"}/>
+      <AppNavigator initialRouteName={MainMenu}/>
     );
   }
 }
 
 const AppNavigator = createSwitchNavigator({
-  MainMenu: { screen: MainMenu },
   Animations_: { screen: Animations_ },
-  HighScores: {screen: HighScores }
 });

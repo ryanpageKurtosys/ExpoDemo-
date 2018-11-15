@@ -26,8 +26,8 @@ export default class Animations_ extends Component {
   constructor(props){
     super(props);
     this.state = {
-      snakeX:(Dimensions.get('window').width)/2, //keep a reference to the X Co-Ordinate of the snake
-      snakeY:(Dimensions.get('window').height)/2, //keep a referce to the Y Co-Ordinate of the snake
+      snakeX:0, //keep a reference to the X Co-Ordinate of the snake
+      snakeY:0, //keep a referce to the Y Co-Ordinate of the snake
       SnakeColor:'red', //set the initial color of the snake
       bugs:[], //Initialize an expt array for the bugs to collect
       heads: [ //this is the setup for the panHandelar that you drag accross the screen. 

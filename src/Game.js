@@ -11,9 +11,14 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+// Getting the screen dimentions
 const screenWidth = (Dimensions.get('window').width);
 const screenHeight = (Dimensions.get('window').height);
+
+// Getting the status bar height
 const StatusBarHeight = StatusBar.currentHeight;
+
+//let the
 let points = 0;
 
 export default class Animations_ extends Component {
@@ -21,11 +26,11 @@ export default class Animations_ extends Component {
   constructor(props){
     super(props);
     this.state = {
-      snakeX:(Dimensions.get('window').width)/2,
-      snakeY:(Dimensions.get('window').height)/2,
-      SnakeColor:'red',
-      bugs:[],
-      heads: [
+      snakeX:(Dimensions.get('window').width)/2, //keep a reference to the X Co-Ordinate of the snake
+      snakeY:(Dimensions.get('window').height)/2, //keep a referce to the Y Co-Ordinate of the snake
+      SnakeColor:'red', //set the initial color of the snake
+      bugs:[], //Initialize an expt array for the bugs to collect
+      heads: [ //this is the setup for the panHandelar that you drag accross the screen. 
         {
           animation: new Animated.ValueXY(),
         },
@@ -43,85 +48,58 @@ export default class Animations_ extends Component {
 
   }
 
-  collisionDetection(){
-
-   const snakeX = this.state.snakeX;
-   const snakeY = this.state.snakeY;
-   let SnakeColor = this.state.SnakeColor;
-   const bugs = this.state.bugs;
-
-    bugs.map((value,index) =>{
-      if(snakeX >= (value.x - 35 + 10) && snakeX <= (value.x + 45)){
-        if(snakeY >= (value.y + 35 - 40) && snakeY <= (value.y + 35 + 45)){
-          bugs.splice(index,1);
-          points += 10;
-        }
-      } 
-    });
-     
-    this.setState({
-      bugs:bugs,
-      points,
-      SnakeColor,
-    })
-
-    const snake_color =  "hsl(" + Math.random() * 360 + ", 100%, 75%)";
-
-    if(bugs.length == 0){
-      this.setState({
-        SnakeColor:snake_color
-      })
-      this.bugsGenerate(snake_color);
-    }
+  componentDidMount() {
+    this.bugsGenerate("red");
   }
-  
-  //normal bugs -------------------------------------------------------------------------
+
   bugsGenerate = (bug_color) => {
+    //init empty array for the bugs
     const bugs_array = [];
 
     for (var i = 0; i < 4; i++) {
+      //generate 4 X and Y coordinates for the bugs to render at
       bugs_array.push({
           x:Math.floor(Math.abs(Math.random() * screenWidth - 35)),
           y:Math.floor(Math.abs(Math.random() * screenHeight - 35)),
-          backgroundColor:bug_color
+          backgroundColor:bug_color //set the bug color
       });
     }
+    // once the bugs have been generated set the bugs state to the array of bugs
     this.setState({
       bugs:bugs_array
     })
   }
 
-    //------------------------
-    bugsRender = () => {
-        return(this.state.bugs.map((value,index) => {
-          return(
-            <View style={StyleSheet.absoluteFill} key={index}> 
-             <TouchableWithoutFeedback>
-               <Animated.View style={[styles.bug, {left:value.x, top:value.y }]}>
-                <MaterialCommunityIcons name="bug" size={30} color= {value.backgroundColor}/>
-               </Animated.View>
-             </TouchableWithoutFeedback>
-           </View>
-           )
-        }))
-    }
-
-
-  //Math.floor(Math.random() * 6) + 1  
-  componentDidMount() {
-    this.bugsGenerate("red");
+  // this arrow function excecutes the rendering of the bugs at the locations specified above
+  bugsRender = () => {
+      return(this.state.bugs.map((value,index) => {
+        return(
+          <View style={StyleSheet.absoluteFill} key={index}> 
+            <TouchableWithoutFeedback>
+              <Animated.View style={[styles.bug, {left:value.x, top:value.y }]}>
+              <MaterialCommunityIcons name="bug" size={30} color= {value.backgroundColor}/>
+                </Animated.View>
+            </TouchableWithoutFeedback>
+          </View>
+          )
+      }))
   }
   
-  //predator ------------------
+  //most complicated part -- setting up the pan handelar for the game ( charector/ snake )
+  // https://facebook.github.io/react-native/docs/panresponder
 
   componentWillMount() {
     this._panResponder = PanResponder.create({
+      // Ask to be the responder:
       onStartShouldSetPanResponder: () => true,
+
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
+        // The gesture has started. Show visual feedback so the user knows
+        // what is happening!
         this.state.heads.map(({ animation }) => {
           animation.extractOffset();
-          // setValue Animated bug fix
+          // setValue for heads
           animation.setValue({ x: 0, y: 0 });
         });
       },
@@ -134,11 +112,12 @@ export default class Animations_ extends Component {
           y: boundries.dy,
         });
 
+        // set current snake X,Y position
         this.setState({
           snakeX:moveX,
           snakeY:moveY
         });
-
+        //see if we have moved over a bug or not 
         this.collisionDetection();
       
          this.state.heads.slice(1).map(({ animation }, index) => {
@@ -153,18 +132,21 @@ export default class Animations_ extends Component {
     });
   }
 
+  //setup the boundries for the container so the snake cannot leave the playable area
   boundries(dx, dy, x0, y0){
-    
+    //sets the dx to the max value of screenwidth - 35 px
     if(x0 + dx > screenWidth- 35){
       dx =  screenWidth - 35 - x0;
     }
+    //sets the dx to the min value of 35px
     if(x0 + dx <= 35 ){
       dx = 35 - x0;
     }
+    //sets the dy to the max value of StatusBarHeight- 35px 
     if(y0 + dy <= StatusBarHeight + 35 ){
       dy = StatusBarHeight + 35 - y0;
     }
-
+    //sets the dy to the min value of 35px 
     if(y0 + dy >= screenHeight - 35 ){
       dy = screenHeight - 35 - y0;
     }
@@ -174,11 +156,49 @@ export default class Animations_ extends Component {
     }
   }
 
+  collisionDetection(){
 
+   // Get the current snake X position
+   const snakeX = this.state.snakeX;
+   // Get the current snake Y position
+   const snakeY = this.state.snakeY;
+   //Get a copy of the current bugs array
+   const bugs = this.state.bugs;
+
+    bugs.map((value,index) =>{
+      //compare the snake X value to a bug value if it is within the bounds check the y value
+      if(snakeX >= (value.x - 35 + 10) && snakeX <= (value.x + 45)){
+        //compare the snake Y value to a bug value if it is within the bounds then we have moved over a bug
+        if(snakeY >= (value.y + 35 - 40) && snakeY <= (value.y + 35 + 45)){
+          //remove the specific bug from the bugs array
+          bugs.splice(index,1);
+          //incriment the points
+          points += 10;
+        }
+      } 
+    });
+     
+    this.setState({
+      //update the bugs array
+      bugs:bugs,
+      //update the points 
+      points,
+    })
+
+    // if all the bugs in the array have been removed
+    if(bugs.length == 0){
+      // generate a random color
+      const snake_color =  "hsl(" + Math.random() * 360 + ", 100%, 75%)";
+      // set the new snake color to the color generated 
+      this.setState({
+        SnakeColor:snake_color
+      })
+      //generate a new array of bugs ( ass all have gone )
+      this.bugsGenerate(snake_color);
+    }
+  }
 
   render() {
-
-  
     return (
       <View style={[styles.container]}>
         <View style={{ position: 'absolute',top: StatusBarHeight,right: 0,bottom: 0,left: 0,}}>
@@ -196,10 +216,8 @@ export default class Animations_ extends Component {
                 >
                 </Animated.View>
               );
-
         })}
         </View>
-
         <View style={{position: "absolute", bottom: 10,flexDirection:'row', zIndex: 0}}>
           <View style={{flex:1}}>
             <Text style={{color:'white',fontSize:30, justifyContent:'center'}}>Points {points}</Text>
@@ -227,54 +245,12 @@ const styles = StyleSheet.create({
     backgroundColor:'red',
     elevation:5
   },
-  box: {
-    top: 0,
-    left: 0,
-  },
-  pred: {
-    width: 60,
-    height: 60,
-    backgroundColor: "yellow",
-    top: 0,
-    left: 0,
-    borderRadius: 30,
-  },
   bug:{
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
     width: 30,
     height: 30,
-    borderRadius: 0,
-  }, 
-  buttonText: {
-    textAlign: "center",
-    color: "#FFF",
-    fontSize: 16,
-    fontWeight:'bold'
-  }, 
-  button:{
-    width:100,
-    marginTop: 30,
-    backgroundColor: "tomato",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderRadius: 5
-  },
-  buttonEnd:{
-    width:100,
-    marginTop: 30,
-    backgroundColor: "#212121",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderRadius: 5
-  },
-  bugSpecial:{
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    width: 50,
-    height: 50,
     borderRadius: 0,
   }
 });
